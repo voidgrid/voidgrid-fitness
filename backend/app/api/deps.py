@@ -9,7 +9,7 @@ from app.db.session import get_db
 from app.models.user import User
 
 reusable_oauth2 = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/login/access-token"
+    tokenUrl=f"{settings.API_V1_STR}/users/login/access-token"
 )
 
 class TokenData(BaseModel):
@@ -27,4 +27,13 @@ def get_current_user(
     user = db.query(User).filter(User.id == token_data.sub).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
     return user
+
+def get_current_active_superuser(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    if not current_user.is_superuser:
+        raise HTTPException(status_code=400, detail="The user doesn't have enough privileges")
+    return current_user

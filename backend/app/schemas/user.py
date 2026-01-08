@@ -12,7 +12,11 @@ class UserCreate(UserBase):
     email: EmailStr
     password: str
 
+class UserUpdate(BaseModel):
+    is_active: Optional[bool] = None
+    role: Optional[str] = None
+
 class User(UserBase):
     id: int
     class Config:
-        orm_mode = True
+        from_attributes = True

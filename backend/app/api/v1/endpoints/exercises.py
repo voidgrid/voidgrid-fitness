@@ -13,10 +13,8 @@ def read_exercises(
     db: Session = Depends(get_db),
     skip: int = 0,
     limit: int = 100,
-    # Allow fetching exercises without login (public ones), or adjust as needed
     current_user: models.User = Depends(deps.get_current_user),
 ) -> Any:
-    # Fetch exercises owned by user OR public exercises
     return db.query(models.Exercise).filter(
         or_(
             models.Exercise.owner_id == current_user.id,
@@ -50,7 +48,6 @@ def delete_exercise(
     obj = db.query(models.Exercise).get(id)
     if not obj:
         return None
-    # Only owner can delete
     if obj.owner_id != current_user.id:
         return None
     db.delete(obj)
